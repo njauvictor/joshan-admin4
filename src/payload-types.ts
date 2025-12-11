@@ -69,6 +69,18 @@ export interface Config {
   collections: {
     users: User;
     media: Media;
+    tenants: Tenant;
+    'academic-levels': AcademicLevel;
+    classStreams: ClassStream;
+    'subjects-844': Subjects844;
+    'subjects-cbc': SubjectsCbc;
+    teachers: Teacher;
+    classes: Class;
+    students: Student;
+    parents: Parent;
+    promotionBatches: PromotionBatch;
+    exams: Exam;
+    examResults: ExamResult;
     'payload-kv': PayloadKv;
     'payload-locked-documents': PayloadLockedDocument;
     'payload-preferences': PayloadPreference;
@@ -78,14 +90,27 @@ export interface Config {
   collectionsSelect: {
     users: UsersSelect<false> | UsersSelect<true>;
     media: MediaSelect<false> | MediaSelect<true>;
+    tenants: TenantsSelect<false> | TenantsSelect<true>;
+    'academic-levels': AcademicLevelsSelect<false> | AcademicLevelsSelect<true>;
+    classStreams: ClassStreamsSelect<false> | ClassStreamsSelect<true>;
+    'subjects-844': Subjects844Select<false> | Subjects844Select<true>;
+    'subjects-cbc': SubjectsCbcSelect<false> | SubjectsCbcSelect<true>;
+    teachers: TeachersSelect<false> | TeachersSelect<true>;
+    classes: ClassesSelect<false> | ClassesSelect<true>;
+    students: StudentsSelect<false> | StudentsSelect<true>;
+    parents: ParentsSelect<false> | ParentsSelect<true>;
+    promotionBatches: PromotionBatchesSelect<false> | PromotionBatchesSelect<true>;
+    exams: ExamsSelect<false> | ExamsSelect<true>;
+    examResults: ExamResultsSelect<false> | ExamResultsSelect<true>;
     'payload-kv': PayloadKvSelect<false> | PayloadKvSelect<true>;
     'payload-locked-documents': PayloadLockedDocumentsSelect<false> | PayloadLockedDocumentsSelect<true>;
     'payload-preferences': PayloadPreferencesSelect<false> | PayloadPreferencesSelect<true>;
     'payload-migrations': PayloadMigrationsSelect<false> | PayloadMigrationsSelect<true>;
   };
   db: {
-    defaultIDType: string;
+    defaultIDType: number;
   };
+  fallbackLocale: null;
   globals: {};
   globalsSelect: {};
   locale: null;
@@ -120,7 +145,18 @@ export interface UserAuthOperations {
  * via the `definition` "users".
  */
 export interface User {
-  id: string;
+  id: number;
+  roles?:
+    | ('super-admin' | 'school-admin' | 'teacher' | 'accountant' | 'staff' | 'user' | 'parent' | 'student')[]
+    | null;
+  name?: string | null;
+  tenants?:
+    | {
+        tenant: number | Tenant;
+        roles: ('tenant-admin' | 'tenant-viewer')[];
+        id?: string | null;
+      }[]
+    | null;
   updatedAt: string;
   createdAt: string;
   email: string;
@@ -141,10 +177,38 @@ export interface User {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "tenants".
+ */
+export interface Tenant {
+  id: number;
+  schoolName: string;
+  slug: string;
+  schoolCode?: string | null;
+  schoolType?: ('primary' | 'secondary' | 'mixed') | null;
+  schoolEmail?: string | null;
+  schoolPhone?: string | null;
+  schoolAddress?: string | null;
+  county?: string | null;
+  subCounty?: string | null;
+  constituency?: string | null;
+  principalName?: string | null;
+  principalPhone?: string | null;
+  principalEmail?: string | null;
+  deputyPrincipalName?: string | null;
+  deputyPrincipalPhone?: string | null;
+  deputyPrincipalEmail?: string | null;
+  logo?: (number | null) | Media;
+  allowPublicRead?: boolean | null;
+  isActive?: boolean | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "media".
  */
 export interface Media {
-  id: string;
+  id: number;
   alt: string;
   updatedAt: string;
   createdAt: string;
@@ -160,10 +224,454 @@ export interface Media {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "academic-levels".
+ */
+export interface AcademicLevel {
+  id: number;
+  levelCode?: string | null;
+  displayName: string;
+  academicSystem: 'EIGHT_FOUR_FOUR' | 'CBC';
+  levelOrder: number;
+  description?: string | null;
+  ageRange?: {
+    minAge?: number | null;
+    maxAge?: number | null;
+  };
+  subjectsRequired?: number | null;
+  isActive?: boolean | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "classStreams".
+ */
+export interface ClassStream {
+  id: number;
+  tenant?: (number | null) | Tenant;
+  streamName: string;
+  streamCode: string;
+  isActive?: boolean | null;
+  remarks?: string | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "subjects-844".
+ */
+export interface Subjects844 {
+  id: number;
+  code?: string | null;
+  name: string;
+  shortName?: string | null;
+  category:
+    | 'MATHEMATICS'
+    | 'SCIENCES'
+    | 'LANGUAGES'
+    | 'HUMANITIES'
+    | 'TECHNICAL'
+    | 'BUSINESS'
+    | 'CREATIVE_ARTS'
+    | 'RELIGIOUS_STUDIES'
+    | 'PHYSICAL_EDUCATION';
+  description?: string | null;
+  isCompulsory?: boolean | null;
+  maxScore?: number | null;
+  passMark?: number | null;
+  paperCount?: number | null;
+  papers?:
+    | {
+        paperName: string;
+        paperCode: string;
+        maxMarks: number;
+        weight?: number | null;
+        id?: string | null;
+      }[]
+    | null;
+  competencies?:
+    | {
+        code?: string | null;
+        description?: string | null;
+        weight?: number | null;
+        id?: string | null;
+      }[]
+    | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * CBC Subject definitions used across all tenants/schools.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "subjects-cbc".
+ */
+export interface SubjectsCbc {
+  id: number;
+  code?: string | null;
+  name: string;
+  isCore?: boolean | null;
+  strand?: string | null;
+  substrand?: string | null;
+  description?: string | null;
+  learningAreas?:
+    | {
+        area?: string | null;
+        competencies?:
+          | {
+              code: string;
+              description?: string | null;
+              indicators?: string | null;
+              id?: string | null;
+            }[]
+          | null;
+        id?: string | null;
+      }[]
+    | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "teachers".
+ */
+export interface Teacher {
+  id: number;
+  tenant?: (number | null) | Tenant;
+  firstName: string;
+  middleName?: string | null;
+  lastName: string;
+  fullName: string;
+  phone: string;
+  email?: string | null;
+  employeeNumber?: string | null;
+  tscNumber?: string | null;
+  gender: 'MALE' | 'FEMALE';
+  dateOfBirth?: string | null;
+  idNumber?: string | null;
+  status: 'ACTIVE' | 'ON_LEAVE' | 'RESIGNED' | 'TERMINATED' | 'RETIRED' | 'PROBATION';
+  employmentType?: ('PERMANENT' | 'CONTRACT' | 'PART_TIME' | 'INTERN' | 'PROBATION' | 'CASUAL') | null;
+  qualifications?: string | null;
+  specialization?: string | null;
+  subjects844?:
+    | {
+        subject?: (number | null) | Subjects844;
+        id?: string | null;
+      }[]
+    | null;
+  subjectsCBC?:
+    | {
+        subject?: (number | null) | SubjectsCbc;
+        strand?: string | null;
+        isPrimary?: boolean | null;
+        id?: string | null;
+      }[]
+    | null;
+  employmentDate: string;
+  department?: string | null;
+  photo?: (number | null) | Media;
+  bankName?: string | null;
+  bankAccount?: string | null;
+  bankBranch?: string | null;
+  nhifNumber?: string | null;
+  nssfNumber?: string | null;
+  kraPin?: string | null;
+  address?: string | null;
+  remarks?: string | null;
+  isActive?: boolean | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "classes".
+ */
+export interface Class {
+  id: number;
+  tenant?: (number | null) | Tenant;
+  /**
+   * e.g., 2023
+   */
+  academicYear: number;
+  academicLevel: number | AcademicLevel;
+  stream?: (number | null) | ClassStream;
+  /**
+   * e.g., 4A-2023
+   */
+  className: string;
+  capacity?: number | null;
+  academicSystem: 'EIGHT_FOUR_FOUR' | 'CBC';
+  studentCount?: number | null;
+  classTeacher?: (number | null) | Teacher;
+  isActive?: boolean | null;
+  remarks?: string | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "students".
+ */
+export interface Student {
+  id: number;
+  tenant?: (number | null) | Tenant;
+  admissionNumber: string;
+  fullName: string;
+  firstName: string;
+  middleName?: string | null;
+  lastName: string;
+  dateOfBirth: string;
+  gender: 'MALE' | 'FEMALE';
+  currentClass: number | Class;
+  currentStream?: (number | null) | ClassStream;
+  currentLevel: number | AcademicLevel;
+  status:
+    | 'ACTIVE'
+    | 'GRADUATED'
+    | 'TRANSFERRED'
+    | 'SUSPENDED'
+    | 'DROPPED_OUT'
+    | 'EXPELLED'
+    | 'REPEATING'
+    | 'DISCONTINUED'
+    | 'ON_LEAVE';
+  boardingStatus?: ('DAY_SCHOLAR' | 'BOARDER' | 'WEEKLY_BOARDER') | null;
+  joiningDate: string;
+  admissionYear?: string | null;
+  photo?: (number | null) | Media;
+  subjects?:
+    | {
+        subject:
+          | {
+              relationTo: 'subjects-844';
+              value: number | Subjects844;
+            }
+          | {
+              relationTo: 'subjects-cbc';
+              value: number | SubjectsCbc;
+            };
+        isCompulsory?: boolean | null;
+        id?: string | null;
+      }[]
+    | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "parents".
+ */
+export interface Parent {
+  id: number;
+  tenant?: (number | null) | Tenant;
+  parentName: string;
+  parentPhone: string;
+  parentEmail?: string | null;
+  parentRelationship: 'FATHER' | 'MOTHER' | 'RELATIVE' | 'GUARDIAN' | 'SPONSOR';
+  students?: (number | Student)[] | null;
+  isActive?: boolean | null;
+  address?: string | null;
+  remarks?: string | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "promotionBatches".
+ */
+export interface PromotionBatch {
+  id: number;
+  tenant?: (number | null) | Tenant;
+  name: string;
+  fromAcademicYear: number;
+  toAcademicYear: number;
+  fromLevel: number | AcademicLevel;
+  toLevel: number | AcademicLevel;
+  promotionDate: string;
+  promotedBy: number | User;
+  totalStudents?: number | null;
+  promotedCount?: number | null;
+  retainedCount?: number | null;
+  status?: ('PENDING' | 'IN_PROGRESS' | 'COMPLETED' | 'FAILED' | 'ROLLED_BACK') | null;
+  completedAt?: string | null;
+  rules?: {
+    promotionCriteria?: ('ACADEMIC' | 'ATTENDANCE' | 'BEHAVIORAL' | 'COMBINED') | null;
+    minAttendance?: number | null;
+    minAverageScore?: number | null;
+    maxFailedSubjects?: number | null;
+  };
+  studentDetails?:
+    | {
+        fromAcademicLevel: number | AcademicLevel;
+        toAcademicLevel?: (number | null) | AcademicLevel;
+        status?: ('PROMOTED' | 'RETAINED' | 'CONDITIONAL' | 'GRADUATED' | 'DISCONTINUED') | null;
+        id?: string | null;
+      }[]
+    | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "exams".
+ */
+export interface Exam {
+  id: number;
+  tenant?: (number | null) | Tenant;
+  /**
+   * e.g., Mathematics End Term 1, English Midterm
+   */
+  examName: string;
+  examCode?: string | null;
+  /**
+   * e.g., 2024
+   */
+  academicYear: number;
+  term: 'TERM_1' | 'TERM_2' | 'TERM_3';
+  examType:
+    | 'BEGINNING_OF_TERM'
+    | 'MIDTERM'
+    | 'MIDTERM_2'
+    | 'MIDTERM_3'
+    | 'END_TERM'
+    | 'CONTINUOUS_ASSESSMENT'
+    | 'PRACTICAL'
+    | 'PROJECT'
+    | 'OTHER';
+  examDate: string;
+  dueDate?: string | null;
+  /**
+   * Select subject from 8-4-4 or CBC
+   */
+  subject:
+    | {
+        relationTo: 'subjects-844';
+        value: number | Subjects844;
+      }
+    | {
+        relationTo: 'subjects-cbc';
+        value: number | SubjectsCbc;
+      };
+  class: number | Class;
+  /**
+   * Automatically derived from class, but can be overridden
+   */
+  academicLevel?: (number | null) | AcademicLevel;
+  teacher?: (number | null) | Teacher;
+  maxScore: number;
+  /**
+   * Single paper exam or multiple papers (e.g., Paper 1, Paper 2, Paper 3)
+   */
+  paperType: 'SINGLE' | 'MULTIPLE';
+  papers?:
+    | {
+        paperName: string;
+        paperCode: string;
+        maxMarks: number;
+        weight?: number | null;
+        description?: string | null;
+        id?: string | null;
+      }[]
+    | null;
+  remarks?: string | null;
+  status: 'DRAFT' | 'PUBLISHED' | 'ARCHIVED';
+  isRemarked?: boolean | null;
+  remarkDate?: string | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "examResults".
+ */
+export interface ExamResult {
+  id: number;
+  tenant?: (number | null) | Tenant;
+  exam: number | Exam;
+  student: number | Student;
+  /**
+   * Derived from exam, but can be overridden
+   */
+  subject?:
+    | ({
+        relationTo: 'subjects-844';
+        value: number | Subjects844;
+      } | null)
+    | ({
+        relationTo: 'subjects-cbc';
+        value: number | SubjectsCbc;
+      } | null);
+  /**
+   * Derived from exam
+   */
+  class?: (number | null) | Class;
+  teacher?: (number | null) | Teacher;
+  totalMarks: number;
+  maxScore: number;
+  /**
+   * Automatically calculated as (totalMarks / maxScore) * 100
+   */
+  percentage?: number | null;
+  /**
+   * Automatically assigned based on grading system
+   */
+  grade?:
+    | (
+        | 'A'
+        | 'A_MINUS'
+        | 'B_PLUS'
+        | 'B'
+        | 'B_MINUS'
+        | 'C_PLUS'
+        | 'C'
+        | 'C_MINUS'
+        | 'D_PLUS'
+        | 'D'
+        | 'D_MINUS'
+        | 'E'
+        | 'F'
+        | 'EXCEEDING_EXPECTATIONS'
+        | 'MEETING_EXPECTATIONS'
+        | 'APPROACHING_EXPECTATIONS'
+        | 'BELOW_EXPECTATIONS'
+        | 'WELL_BELOW_EXPECTATIONS'
+      )
+    | null;
+  /**
+   * Points corresponding to grade
+   */
+  gradePoints?: number | null;
+  paperScores?:
+    | {
+        paper?: string | null;
+        paperCode?: string | null;
+        marksObtained?: number | null;
+        maxMarks?: number | null;
+        weight?: number | null;
+        id?: string | null;
+      }[]
+    | null;
+  remarks?: string | null;
+  status: 'DRAFT' | 'PUBLISHED' | 'ARCHIVED';
+  isAbsent?: boolean | null;
+  isRemarked?: boolean | null;
+  remarkDate?: string | null;
+  attachments?:
+    | {
+        file: number | Media;
+        description?: string | null;
+        id?: string | null;
+      }[]
+    | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "payload-kv".
  */
 export interface PayloadKv {
-  id: string;
+  id: number;
   key: string;
   data:
     | {
@@ -180,20 +688,68 @@ export interface PayloadKv {
  * via the `definition` "payload-locked-documents".
  */
 export interface PayloadLockedDocument {
-  id: string;
+  id: number;
   document?:
     | ({
         relationTo: 'users';
-        value: string | User;
+        value: number | User;
       } | null)
     | ({
         relationTo: 'media';
-        value: string | Media;
+        value: number | Media;
+      } | null)
+    | ({
+        relationTo: 'tenants';
+        value: number | Tenant;
+      } | null)
+    | ({
+        relationTo: 'academic-levels';
+        value: number | AcademicLevel;
+      } | null)
+    | ({
+        relationTo: 'classStreams';
+        value: number | ClassStream;
+      } | null)
+    | ({
+        relationTo: 'subjects-844';
+        value: number | Subjects844;
+      } | null)
+    | ({
+        relationTo: 'subjects-cbc';
+        value: number | SubjectsCbc;
+      } | null)
+    | ({
+        relationTo: 'teachers';
+        value: number | Teacher;
+      } | null)
+    | ({
+        relationTo: 'classes';
+        value: number | Class;
+      } | null)
+    | ({
+        relationTo: 'students';
+        value: number | Student;
+      } | null)
+    | ({
+        relationTo: 'parents';
+        value: number | Parent;
+      } | null)
+    | ({
+        relationTo: 'promotionBatches';
+        value: number | PromotionBatch;
+      } | null)
+    | ({
+        relationTo: 'exams';
+        value: number | Exam;
+      } | null)
+    | ({
+        relationTo: 'examResults';
+        value: number | ExamResult;
       } | null);
   globalSlug?: string | null;
   user: {
     relationTo: 'users';
-    value: string | User;
+    value: number | User;
   };
   updatedAt: string;
   createdAt: string;
@@ -203,10 +759,10 @@ export interface PayloadLockedDocument {
  * via the `definition` "payload-preferences".
  */
 export interface PayloadPreference {
-  id: string;
+  id: number;
   user: {
     relationTo: 'users';
-    value: string | User;
+    value: number | User;
   };
   key?: string | null;
   value?:
@@ -226,7 +782,7 @@ export interface PayloadPreference {
  * via the `definition` "payload-migrations".
  */
 export interface PayloadMigration {
-  id: string;
+  id: number;
   name?: string | null;
   batch?: number | null;
   updatedAt: string;
@@ -237,6 +793,15 @@ export interface PayloadMigration {
  * via the `definition` "users_select".
  */
 export interface UsersSelect<T extends boolean = true> {
+  roles?: T;
+  name?: T;
+  tenants?:
+    | T
+    | {
+        tenant?: T;
+        roles?: T;
+        id?: T;
+      };
   updatedAt?: T;
   createdAt?: T;
   email?: T;
@@ -271,6 +836,360 @@ export interface MediaSelect<T extends boolean = true> {
   height?: T;
   focalX?: T;
   focalY?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "tenants_select".
+ */
+export interface TenantsSelect<T extends boolean = true> {
+  schoolName?: T;
+  slug?: T;
+  schoolCode?: T;
+  schoolType?: T;
+  schoolEmail?: T;
+  schoolPhone?: T;
+  schoolAddress?: T;
+  county?: T;
+  subCounty?: T;
+  constituency?: T;
+  principalName?: T;
+  principalPhone?: T;
+  principalEmail?: T;
+  deputyPrincipalName?: T;
+  deputyPrincipalPhone?: T;
+  deputyPrincipalEmail?: T;
+  logo?: T;
+  allowPublicRead?: T;
+  isActive?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "academic-levels_select".
+ */
+export interface AcademicLevelsSelect<T extends boolean = true> {
+  levelCode?: T;
+  displayName?: T;
+  academicSystem?: T;
+  levelOrder?: T;
+  description?: T;
+  ageRange?:
+    | T
+    | {
+        minAge?: T;
+        maxAge?: T;
+      };
+  subjectsRequired?: T;
+  isActive?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "classStreams_select".
+ */
+export interface ClassStreamsSelect<T extends boolean = true> {
+  tenant?: T;
+  streamName?: T;
+  streamCode?: T;
+  isActive?: T;
+  remarks?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "subjects-844_select".
+ */
+export interface Subjects844Select<T extends boolean = true> {
+  code?: T;
+  name?: T;
+  shortName?: T;
+  category?: T;
+  description?: T;
+  isCompulsory?: T;
+  maxScore?: T;
+  passMark?: T;
+  paperCount?: T;
+  papers?:
+    | T
+    | {
+        paperName?: T;
+        paperCode?: T;
+        maxMarks?: T;
+        weight?: T;
+        id?: T;
+      };
+  competencies?:
+    | T
+    | {
+        code?: T;
+        description?: T;
+        weight?: T;
+        id?: T;
+      };
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "subjects-cbc_select".
+ */
+export interface SubjectsCbcSelect<T extends boolean = true> {
+  code?: T;
+  name?: T;
+  isCore?: T;
+  strand?: T;
+  substrand?: T;
+  description?: T;
+  learningAreas?:
+    | T
+    | {
+        area?: T;
+        competencies?:
+          | T
+          | {
+              code?: T;
+              description?: T;
+              indicators?: T;
+              id?: T;
+            };
+        id?: T;
+      };
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "teachers_select".
+ */
+export interface TeachersSelect<T extends boolean = true> {
+  tenant?: T;
+  firstName?: T;
+  middleName?: T;
+  lastName?: T;
+  fullName?: T;
+  phone?: T;
+  email?: T;
+  employeeNumber?: T;
+  tscNumber?: T;
+  gender?: T;
+  dateOfBirth?: T;
+  idNumber?: T;
+  status?: T;
+  employmentType?: T;
+  qualifications?: T;
+  specialization?: T;
+  subjects844?:
+    | T
+    | {
+        subject?: T;
+        id?: T;
+      };
+  subjectsCBC?:
+    | T
+    | {
+        subject?: T;
+        strand?: T;
+        isPrimary?: T;
+        id?: T;
+      };
+  employmentDate?: T;
+  department?: T;
+  photo?: T;
+  bankName?: T;
+  bankAccount?: T;
+  bankBranch?: T;
+  nhifNumber?: T;
+  nssfNumber?: T;
+  kraPin?: T;
+  address?: T;
+  remarks?: T;
+  isActive?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "classes_select".
+ */
+export interface ClassesSelect<T extends boolean = true> {
+  tenant?: T;
+  academicYear?: T;
+  academicLevel?: T;
+  stream?: T;
+  className?: T;
+  capacity?: T;
+  academicSystem?: T;
+  studentCount?: T;
+  classTeacher?: T;
+  isActive?: T;
+  remarks?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "students_select".
+ */
+export interface StudentsSelect<T extends boolean = true> {
+  tenant?: T;
+  admissionNumber?: T;
+  fullName?: T;
+  firstName?: T;
+  middleName?: T;
+  lastName?: T;
+  dateOfBirth?: T;
+  gender?: T;
+  currentClass?: T;
+  currentStream?: T;
+  currentLevel?: T;
+  status?: T;
+  boardingStatus?: T;
+  joiningDate?: T;
+  admissionYear?: T;
+  photo?: T;
+  subjects?:
+    | T
+    | {
+        subject?: T;
+        isCompulsory?: T;
+        id?: T;
+      };
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "parents_select".
+ */
+export interface ParentsSelect<T extends boolean = true> {
+  tenant?: T;
+  parentName?: T;
+  parentPhone?: T;
+  parentEmail?: T;
+  parentRelationship?: T;
+  students?: T;
+  isActive?: T;
+  address?: T;
+  remarks?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "promotionBatches_select".
+ */
+export interface PromotionBatchesSelect<T extends boolean = true> {
+  tenant?: T;
+  name?: T;
+  fromAcademicYear?: T;
+  toAcademicYear?: T;
+  fromLevel?: T;
+  toLevel?: T;
+  promotionDate?: T;
+  promotedBy?: T;
+  totalStudents?: T;
+  promotedCount?: T;
+  retainedCount?: T;
+  status?: T;
+  completedAt?: T;
+  rules?:
+    | T
+    | {
+        promotionCriteria?: T;
+        minAttendance?: T;
+        minAverageScore?: T;
+        maxFailedSubjects?: T;
+      };
+  studentDetails?:
+    | T
+    | {
+        fromAcademicLevel?: T;
+        toAcademicLevel?: T;
+        status?: T;
+        id?: T;
+      };
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "exams_select".
+ */
+export interface ExamsSelect<T extends boolean = true> {
+  tenant?: T;
+  examName?: T;
+  examCode?: T;
+  academicYear?: T;
+  term?: T;
+  examType?: T;
+  examDate?: T;
+  dueDate?: T;
+  subject?: T;
+  class?: T;
+  academicLevel?: T;
+  teacher?: T;
+  maxScore?: T;
+  paperType?: T;
+  papers?:
+    | T
+    | {
+        paperName?: T;
+        paperCode?: T;
+        maxMarks?: T;
+        weight?: T;
+        description?: T;
+        id?: T;
+      };
+  remarks?: T;
+  status?: T;
+  isRemarked?: T;
+  remarkDate?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "examResults_select".
+ */
+export interface ExamResultsSelect<T extends boolean = true> {
+  tenant?: T;
+  exam?: T;
+  student?: T;
+  subject?: T;
+  class?: T;
+  teacher?: T;
+  totalMarks?: T;
+  maxScore?: T;
+  percentage?: T;
+  grade?: T;
+  gradePoints?: T;
+  paperScores?:
+    | T
+    | {
+        paper?: T;
+        paperCode?: T;
+        marksObtained?: T;
+        maxMarks?: T;
+        weight?: T;
+        id?: T;
+      };
+  remarks?: T;
+  status?: T;
+  isAbsent?: T;
+  isRemarked?: T;
+  remarkDate?: T;
+  attachments?:
+    | T
+    | {
+        file?: T;
+        description?: T;
+        id?: T;
+      };
+  updatedAt?: T;
+  createdAt?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
