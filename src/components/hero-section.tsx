@@ -16,7 +16,7 @@ const Hero = () => {
             <span className="text-sm font-medium">Trusted by 500+ Schools Nationwide</span>
           </div>
 
-          <h1 className="text-primary text-4xl md:text-5xl font-bold text-gray-900 leading-tight mb-6 mt-6">
+          <h1 className="text-primary text-4xl md:text-5xl lg:text-6xl font-bold leading-normal mb-6 mt-6">
             Modern School Management <br />
             <span className="text-secondary mt-2"> Made Simple & Efficient</span>
           </h1>
