@@ -146,10 +146,11 @@ export interface UserAuthOperations {
  */
 export interface User {
   id: number;
+  password?: string | null;
   roles?:
-    | ('super-admin' | 'school-admin' | 'teacher' | 'accountant' | 'staff' | 'user' | 'parent' | 'student')[]
+    | ('super-admin' | 'school-admin' | 'user' | 'teacher' | 'student' | 'parent' | 'accountant' | 'staff')[]
     | null;
-  name?: string | null;
+  username?: string | null;
   tenants?:
     | {
         tenant: number | Tenant;
@@ -173,7 +174,6 @@ export interface User {
         expiresAt: string;
       }[]
     | null;
-  password?: string | null;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -181,25 +181,19 @@ export interface User {
  */
 export interface Tenant {
   id: number;
-  schoolName: string;
+  name: string;
+  /**
+   * Used for domain-based tenant handling
+   */
+  domain?: string | null;
+  /**
+   * Used for url paths, example: /tenant-slug/page-slug
+   */
   slug: string;
-  schoolCode?: string | null;
-  schoolType?: ('primary' | 'secondary' | 'mixed') | null;
-  schoolEmail?: string | null;
-  schoolPhone?: string | null;
-  schoolAddress?: string | null;
-  county?: string | null;
-  subCounty?: string | null;
-  constituency?: string | null;
-  principalName?: string | null;
-  principalPhone?: string | null;
-  principalEmail?: string | null;
-  deputyPrincipalName?: string | null;
-  deputyPrincipalPhone?: string | null;
-  deputyPrincipalEmail?: string | null;
-  logo?: (number | null) | Media;
+  /**
+   * If checked, logging in is not required to read. Useful for building public pages.
+   */
   allowPublicRead?: boolean | null;
-  isActive?: boolean | null;
   updatedAt: string;
   createdAt: string;
 }
@@ -793,8 +787,9 @@ export interface PayloadMigration {
  * via the `definition` "users_select".
  */
 export interface UsersSelect<T extends boolean = true> {
+  password?: T;
   roles?: T;
-  name?: T;
+  username?: T;
   tenants?:
     | T
     | {
@@ -842,25 +837,10 @@ export interface MediaSelect<T extends boolean = true> {
  * via the `definition` "tenants_select".
  */
 export interface TenantsSelect<T extends boolean = true> {
-  schoolName?: T;
+  name?: T;
+  domain?: T;
   slug?: T;
-  schoolCode?: T;
-  schoolType?: T;
-  schoolEmail?: T;
-  schoolPhone?: T;
-  schoolAddress?: T;
-  county?: T;
-  subCounty?: T;
-  constituency?: T;
-  principalName?: T;
-  principalPhone?: T;
-  principalEmail?: T;
-  deputyPrincipalName?: T;
-  deputyPrincipalPhone?: T;
-  deputyPrincipalEmail?: T;
-  logo?: T;
   allowPublicRead?: T;
-  isActive?: T;
   updatedAt?: T;
   createdAt?: T;
 }
