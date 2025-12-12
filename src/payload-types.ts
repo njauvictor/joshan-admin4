@@ -191,6 +191,10 @@ export interface Tenant {
    */
   slug: string;
   /**
+   * Logo for the tenant
+   */
+  logo?: (number | null) | Media;
+  /**
    * If checked, logging in is not required to read. Useful for building public pages.
    */
   allowPublicRead?: boolean | null;
@@ -840,6 +844,7 @@ export interface TenantsSelect<T extends boolean = true> {
   name?: T;
   domain?: T;
   slug?: T;
+  logo?: T;
   allowPublicRead?: T;
   updatedAt?: T;
   createdAt?: T;
