@@ -1,41 +1,13 @@
 import { ArrowRight, Shield } from 'lucide-react'
+import Image from 'next/image'
 import Link from 'next/link'
+import Navbar from './Navbar'
 
 const Hero = () => {
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-indigo-50 flex flex-col items-center justify-center px-4 md:px-12">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-indigo-50 flex flex-col items-center justify-center px-4 md:px-12 lg:px-16">
       {/* Centered Navigation */}
-      <nav className="w-full max-w-7xl mx-auto px-4 sm:px-6 py-6 mb-8">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center space-x-3">
-            <p className="text-3xl font-extrabold text-primary">
-              Joshan <span className="text-secondary">Registry</span>
-            </p>
-          </div>
-          <div className="hidden md:flex items-center space-x-8">
-            <a href="#" className="text-gray-700 hover:text-blue-600 transition-colors font-medium">
-              Features
-            </a>
-            <a href="#" className="text-gray-700 hover:text-blue-600 transition-colors font-medium">
-              Schools
-            </a>
-            <a href="#" className="text-gray-700 hover:text-blue-600 transition-colors font-medium">
-              Contact
-            </a>
-            <a href="#" className="text-gray-700 hover:text-blue-600 transition-colors font-medium">
-              Resources
-            </a>
-          </div>
-          <div className="flex items-center space-x-4">
-            <Link href="/admin">
-              <button className="cursor-pointer px-6 py-2.5 bg-primary text-white rounded-xl hover:shadow-lg hover:shadow-blue-200 transition-all duration-300 font-medium">
-                Admin Login
-              </button>
-            </Link>
-          </div>
-        </div>
-      </nav>
-
+      <Navbar />
       {/* Centered Hero Content */}
       <div className="flex-1 flex items-center justify-center w-full">
         <div className="max-w-4xl text-center mx-auto px-4">

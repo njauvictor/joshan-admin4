@@ -7,7 +7,6 @@ import sharp from 'sharp'
 
 import { Media } from './collections/Media'
 import { Tenants } from './collections/Tenants'
-import { plugins } from './plugins'
 import { AcademicLevel } from './collections/AcademicLevel'
 import { ClassStream } from './collections/ClassStream'
 import { Subject844 } from './collections/Subject844'
@@ -50,6 +49,7 @@ export default buildConfig({
     Exams,
     ExamResults,
   ],
+
   editor: lexicalEditor(),
   secret: process.env.PAYLOAD_SECRET || '',
   typescript: {
@@ -61,6 +61,20 @@ export default buildConfig({
     },
   }),
   sharp,
+  // CORS configuration for production (Vercel)
+  cors: [
+    process.env.NODE_ENV === 'production' && process.env.VERCEL_URL
+      ? `https://${process.env.VERCEL_URL}`
+      : 'http://localhost:3000',
+  ].filter(Boolean),
+  // CSRF protection configuration
+  csrf: [
+    process.env.NODE_ENV === 'production' && process.env.VERCEL_URL
+      ? `https://${process.env.VERCEL_URL}`
+      : 'http://localhost:3000',
+  ].filter(Boolean),
+  // Cookie configuration for production
+  cookiePrefix: 'joshan_admin',
   plugins: [
     multiTenantPlugin<Config>({
       collections: {

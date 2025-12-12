@@ -181,23 +181,192 @@ export interface User {
  */
 export interface Tenant {
   id: number;
+  /**
+   * Official school name
+   */
   name: string;
   /**
-   * Used for domain-based tenant handling
+   * Auto-generated URL identifier from school name
+   */
+  slug?: string | null;
+  /**
+   * Custom domain for school
    */
   domain?: string | null;
   /**
-   * Used for url paths, example: /tenant-slug/page-slug
+   * School motto
    */
-  slug: string;
+  motto?: string | null;
   /**
-   * Logo for the tenant
+   * School vision statement
+   */
+  vision?: string | null;
+  /**
+   * School mission statement
+   */
+  mission?: string | null;
+  schoolType?: ('boarding' | 'day' | 'mixed') | null;
+  schoolLevel?: ('junior_secondary' | 'senior_secondary' | 'mixed') | null;
+  gender?: ('girls' | 'boys' | 'mixed') | null;
+  /**
+   * Year school was established
+   */
+  establishedYear?: number | null;
+  schoolCategory?: ('public' | 'private' | 'mission' | 'international') | null;
+  /**
+   * Academic systems offered
+   */
+  academicSystems?: ('EIGHT_FOUR_FOUR' | 'CBC' | 'IGCSE' | 'IB')[] | null;
+  country: string;
+  county?: string | null;
+  subcounty?: string | null;
+  constituency?: string | null;
+  ward?: string | null;
+  /**
+   * Postal/ZIP code
+   */
+  postalCode?: string | null;
+  /**
+   * Physical location address
+   */
+  physicalAddress?: string | null;
+  poBox?: string | null;
+  town?: string | null;
+  /**
+   * Main telephone line
+   */
+  telephone?: string | null;
+  /**
+   * Mobile contact
+   */
+  mobile?: string | null;
+  /**
+   * Primary email address
+   */
+  email?: string | null;
+  /**
+   * School website
+   */
+  website?: string | null;
+  /**
+   * Additional email addresses
+   */
+  additionalEmails?:
+    | {
+        email: string;
+        purpose?: ('general' | 'admissions' | 'accounts' | 'principal' | 'academic') | null;
+        id?: string | null;
+      }[]
+    | null;
+  /**
+   * School Principal
+   */
+  principal?: string | null;
+  principalTitle?: ('mr' | 'mrs' | 'miss' | 'dr' | 'prof') | null;
+  /**
+   * Deputy Principal
+   */
+  deputyPrincipal?: string | null;
+  deputyTitle?: ('mr' | 'mrs' | 'miss' | 'dr') | null;
+  /**
+   * Board of Governors Chairperson
+   */
+  bogChairperson?: string | null;
+  /**
+   * Board of Governors Members
+   */
+  bogMembers?:
+    | {
+        name: string;
+        title?: ('mr' | 'mrs' | 'miss' | 'dr' | 'prof' | 'rev') | null;
+        role?:
+          | (
+              | 'chairperson'
+              | 'vice_chair'
+              | 'secretary'
+              | 'treasurer'
+              | 'member'
+              | 'parent_rep'
+              | 'teacher_rep'
+              | 'student_rep'
+            )
+          | null;
+        email?: string | null;
+        phone?: string | null;
+        appointmentDate?: string | null;
+        termEnds?: string | null;
+        id?: string | null;
+      }[]
+    | null;
+  /**
+   * School sponsors/partners
+   */
+  sponsors?:
+    | {
+        name: string;
+        type?: ('religious' | 'corporate' | 'government' | 'community' | 'individual') | null;
+        contactPerson?: string | null;
+        contactEmail?: string | null;
+        contactPhone?: string | null;
+        sponsorshipLevel?: ('major' | 'minor' | 'in_kind') | null;
+        id?: string | null;
+      }[]
+    | null;
+  /**
+   * School logo
    */
   logo?: (number | null) | Media;
   /**
-   * If checked, logging in is not required to read. Useful for building public pages.
+   * School banner/header image
+   */
+  bannerImage?: (number | null) | Media;
+  /**
+   * School facility photos
+   */
+  schoolPhotos?:
+    | {
+        image: number | Media;
+        caption?: string | null;
+        category?:
+          | (
+              | 'classrooms'
+              | 'laboratories'
+              | 'library'
+              | 'sports'
+              | 'administration'
+              | 'dormitories'
+              | 'dining'
+              | 'grounds'
+            )
+          | null;
+        id?: string | null;
+      }[]
+    | null;
+  /**
+   * Allow public access to school profile
    */
   allowPublicRead?: boolean | null;
+  /**
+   * Active school status
+   */
+  isActive?: boolean | null;
+  /**
+   * School-specific settings
+   */
+  settings?: {
+    /**
+     * Month when academic year starts (1-12)
+     */
+    academicYearStart?: number | null;
+    /**
+     * Month when academic year ends (1-12)
+     */
+    academicYearEnd?: number | null;
+    defaultLanguage?: ('en' | 'sw' | 'fr') | null;
+    timezone?: ('Africa/Nairobi' | 'Africa/Harare' | 'Africa/Lagos' | 'GMT') | null;
+    currency?: ('KES' | 'USD' | 'EUR' | 'GBP') | null;
+    dateFormat?: ('DD/MM/YYYY' | 'MM/DD/YYYY' | 'YYYY-MM-DD') | null;
+  };
   updatedAt: string;
   createdAt: string;
 }
@@ -237,6 +406,14 @@ export interface AcademicLevel {
   };
   subjectsRequired?: number | null;
   isActive?: boolean | null;
+  /**
+   * Next academic level for promotion
+   */
+  nextLevel?: (number | null) | AcademicLevel;
+  /**
+   * Final year of this academic system (no promotion)
+   */
+  isFinalYear?: boolean | null;
   updatedAt: string;
   createdAt: string;
 }
@@ -388,20 +565,66 @@ export interface Class {
   id: number;
   tenant?: (number | null) | Tenant;
   /**
-   * e.g., 2023
+   * Permanent unique identifier
+   */
+  classCode: string;
+  /**
+   * Academic year starting
    */
   academicYear: number;
+  /**
+   * Current grade/level
+   */
   academicLevel: number | AcademicLevel;
+  /**
+   * Where this class promotes to (auto-filled)
+   */
+  nextAcademicLevel?: (number | null) | AcademicLevel;
+  /**
+   * Section/Stream (East, West, etc.)
+   */
   stream?: (number | null) | ClassStream;
   /**
-   * e.g., 4A-2023
+   * Can be promoted next year
+   */
+  promotionEligible?: boolean | null;
+  /**
+   * Final year (no promotion)
+   */
+  isFinalYear?: boolean | null;
+  /**
+   * Auto-archive after promotion
+   */
+  autoArchive?: boolean | null;
+  promotionStatus?: ('active' | 'ready' | 'promoted' | 'archived') | null;
+  lastPromotedYear?: number | null;
+  /**
+   * Auto-generated: Form1East/2025
    */
   className: string;
   capacity?: number | null;
-  academicSystem: 'EIGHT_FOUR_FOUR' | 'CBC';
   studentCount?: number | null;
+  academicSystem: 'EIGHT_FOUR_FOUR' | 'CBC' | 'IGCSE';
+  /**
+   * Form teacher/Class teacher
+   */
   classTeacher?: (number | null) | Teacher;
+  lineage?: {
+    /**
+     * Very first class in this lineage
+     */
+    originalClass?: (number | null) | Class;
+    previousClass?: (number | null) | Class;
+    nextClass?: (number | null) | Class;
+    /**
+     * How many promotions from original
+     */
+    generation?: number | null;
+  };
   isActive?: boolean | null;
+  /**
+   * Notes about this class
+   */
   remarks?: string | null;
   updatedAt: string;
   createdAt: string;
@@ -842,10 +1065,87 @@ export interface MediaSelect<T extends boolean = true> {
  */
 export interface TenantsSelect<T extends boolean = true> {
   name?: T;
-  domain?: T;
   slug?: T;
+  domain?: T;
+  motto?: T;
+  vision?: T;
+  mission?: T;
+  schoolType?: T;
+  schoolLevel?: T;
+  gender?: T;
+  establishedYear?: T;
+  schoolCategory?: T;
+  academicSystems?: T;
+  country?: T;
+  county?: T;
+  subcounty?: T;
+  constituency?: T;
+  ward?: T;
+  postalCode?: T;
+  physicalAddress?: T;
+  poBox?: T;
+  town?: T;
+  telephone?: T;
+  mobile?: T;
+  email?: T;
+  website?: T;
+  additionalEmails?:
+    | T
+    | {
+        email?: T;
+        purpose?: T;
+        id?: T;
+      };
+  principal?: T;
+  principalTitle?: T;
+  deputyPrincipal?: T;
+  deputyTitle?: T;
+  bogChairperson?: T;
+  bogMembers?:
+    | T
+    | {
+        name?: T;
+        title?: T;
+        role?: T;
+        email?: T;
+        phone?: T;
+        appointmentDate?: T;
+        termEnds?: T;
+        id?: T;
+      };
+  sponsors?:
+    | T
+    | {
+        name?: T;
+        type?: T;
+        contactPerson?: T;
+        contactEmail?: T;
+        contactPhone?: T;
+        sponsorshipLevel?: T;
+        id?: T;
+      };
   logo?: T;
+  bannerImage?: T;
+  schoolPhotos?:
+    | T
+    | {
+        image?: T;
+        caption?: T;
+        category?: T;
+        id?: T;
+      };
   allowPublicRead?: T;
+  isActive?: T;
+  settings?:
+    | T
+    | {
+        academicYearStart?: T;
+        academicYearEnd?: T;
+        defaultLanguage?: T;
+        timezone?: T;
+        currency?: T;
+        dateFormat?: T;
+      };
   updatedAt?: T;
   createdAt?: T;
 }
@@ -867,6 +1167,8 @@ export interface AcademicLevelsSelect<T extends boolean = true> {
       };
   subjectsRequired?: T;
   isActive?: T;
+  nextLevel?: T;
+  isFinalYear?: T;
   updatedAt?: T;
   createdAt?: T;
 }
@@ -1001,14 +1303,29 @@ export interface TeachersSelect<T extends boolean = true> {
  */
 export interface ClassesSelect<T extends boolean = true> {
   tenant?: T;
+  classCode?: T;
   academicYear?: T;
   academicLevel?: T;
+  nextAcademicLevel?: T;
   stream?: T;
+  promotionEligible?: T;
+  isFinalYear?: T;
+  autoArchive?: T;
+  promotionStatus?: T;
+  lastPromotedYear?: T;
   className?: T;
   capacity?: T;
-  academicSystem?: T;
   studentCount?: T;
+  academicSystem?: T;
   classTeacher?: T;
+  lineage?:
+    | T
+    | {
+        originalClass?: T;
+        previousClass?: T;
+        nextClass?: T;
+        generation?: T;
+      };
   isActive?: T;
   remarks?: T;
   updatedAt?: T;

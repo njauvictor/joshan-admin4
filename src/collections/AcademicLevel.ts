@@ -60,6 +60,22 @@ export const AcademicLevel: CollectionConfig = {
       type: 'checkbox',
       defaultValue: true,
     },
+    {
+      name: 'nextLevel',
+      type: 'relationship',
+      relationTo: 'academic-levels',
+      admin: {
+        description: 'Next academic level for promotion',
+      },
+    },
+    {
+      name: 'isFinalYear',
+      type: 'checkbox',
+      defaultValue: false,
+      admin: {
+        description: 'Final year of this academic system (no promotion)',
+      },
+    },
   ],
 
   // -------------------------
